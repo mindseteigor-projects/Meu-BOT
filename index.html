@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IG Sites CRM</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">IG</div>
+        <div><strong>IG Sites</strong><small>CRM COMERCIAL</small></div>
+      </div>
+      <nav class="nav">
+        <button class="nav-link active" data-view="dashboard"><span>▦</span> Visão geral</button>
+        <button class="nav-link" data-view="clients"><span>♙</span> Clientes <b id="nav-client-count">0</b></button>
+        <button class="nav-link" data-view="pipeline"><span>⇢</span> Funil de vendas</button>
+        <button class="nav-link" data-view="catalog"><span>▤</span> Catálogo</button>
+        <button class="nav-link" data-view="reports"><span>▥</span> Relatórios</button>
+        <button class="nav-link" data-view="settings"><span>⚙</span> Configurações</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="connection"><i></i><div><strong>Modo demonstração</strong><small>WhatsApp desconectado</small></div></div>
+        <small class="version">IG Sites CRM · v0.1</small>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobile-menu" aria-label="Abrir menu">☰</button>
+        <div class="breadcrumbs">IG Sites <span>/</span> <strong id="page-crumb">Visão geral</strong></div>
+        <div class="top-actions">
+          <span class="demo-pill">● DEMONSTRAÇÃO</span>
+          <div class="avatar">IG</div>
+        </div>
+      </header>
+
+      <section class="view active" id="view-dashboard">
+        <div class="page-heading">
+          <div><p class="eyebrow">CENTRO DE CONTROLE</p><h1>Visão geral</h1><p class="muted">Acompanhe os contatos e as oportunidades comerciais da IG Sites.</p></div>
+          <button class="primary-btn" data-open-add>＋ Novo cliente</button>
+        </div>
+        <div class="notice"><span>ⓘ</span><div><strong>Ambiente de demonstração</strong><p>Os contatos exibidos são fictícios. Nenhuma mensagem será enviada pelo sistema.</p></div></div>
+        <div class="stats-grid">
+          <article class="stat-card"><div class="stat-top"><span>Contatos cadastrados</span><span class="stat-icon blue">♙</span></div><strong id="stat-total">0</strong><small>Todos os registros locais</small></article>
+          <article class="stat-card"><div class="stat-top"><span>Responderam</span><span class="stat-icon teal">↩</span></div><strong id="stat-replied">0</strong><small>Contatos que responderam</small></article>
+          <article class="stat-card"><div class="stat-top"><span>Interessados</span><span class="stat-icon purple">✦</span></div><strong id="stat-interested">0</strong><small>Oportunidades em andamento</small></article>
+          <article class="stat-card"><div class="stat-top"><span>Vendas fechadas</span><span class="stat-icon green">✓</span></div><strong id="stat-sales">0</strong><small>Marcadas como ganhas</small></article>
+        </div>
+        <div class="dashboard-grid">
+          <article class="panel">
+            <div class="panel-heading"><div><h2>Funil comercial</h2><p class="muted">Distribuição atual dos contatos</p></div><button class="text-btn" data-go="pipeline">Ver funil →</button></div>
+            <div id="dashboard-funnel" class="funnel-bars"></div>
+          </article>
+          <article class="panel">
+            <div class="panel-heading"><div><h2>Atividade recente</h2><p class="muted">Últimos contatos atualizados</p></div><button class="text-btn" data-go="clients">Ver clientes →</button></div>
+            <div id="recent-list" class="recent-list"></div>
+          </article>
+        </div>
+        <article class="panel quick-panel">
+          <div><h2>Acesso rápido</h2><p class="muted">Escolha uma área para continuar.</p></div>
+          <div class="quick-actions">
+            <button data-open-add><span>＋</span><strong>Cadastrar cliente</strong><small>Adicionar uma oportunidade</small></button>
+            <button data-go="catalog"><span>▤</span><strong>Ver catálogo</strong><small>Serviços da IG Sites</small></button>
+            <button data-go="reports"><span>▥</span><strong>Abrir relatórios</strong><small>Indicadores comerciais</small></button>
+          </div>
+        </article>
+      </section>
+
+      <section class="view" id="view-clients">
+        <div class="page-heading"><div><p class="eyebrow">CRM</p><h1>Clientes</h1><p class="muted">Consulte, cadastre e atualize suas oportunidades.</p></div><button class="primary-btn" data-open-add>＋ Novo cliente</button></div>
+        <article class="panel">
+          <div class="toolbar"><div class="searchbox"><span>⌕</span><input id="client-search" placeholder="Buscar empresa, telefone ou serviço..."></div><select id="stage-filter"><option value="">Todas as etapas</option></select></div>
+          <div class="table-wrap"><table><thead><tr><th>Empresa / contato</th><th>Serviço</th><th>Etapa</th><th>Última atualização</th><th></th></tr></thead><tbody id="clients-table"></tbody></table></div>
+          <div id="empty-clients" class="empty-state hidden">Nenhum cliente encontrado com esses filtros.</div>
+        </article>
+      </section>
+
+      <section class="view" id="view-pipeline">
+        <div class="page-heading"><div><p class="eyebrow">ACOMPANHAMENTO</p><h1>Funil de vendas</h1><p class="muted">Veja em que etapa cada oportunidade está.</p></div><button class="primary-btn" data-open-add>＋ Novo cliente</button></div>
+        <div id="pipeline-board" class="pipeline-board"></div>
+      </section>
+
+      <section class="view" id="view-catalog">
+        <div class="page-heading"><div><p class="eyebrow">VITRINE COMERCIAL</p><h1>Catálogo de serviços</h1><p class="muted">Serviços que o assistente poderá apresentar após serem revisados.</p></div></div>
+        <div class="catalog-grid" id="catalog-grid"></div>
+        <div class="notice"><span>✎</span><div><strong>Conteúdo inicial</strong><p>Revise descrições, escopo, preços e links antes de usar estas informações em atendimento real.</p></div></div>
+      </section>
+
+      <section class="view" id="view-reports">
+        <div class="page-heading"><div><p class="eyebrow">ANÁLISE COMERCIAL</p><h1>Relatórios</h1><p class="muted">Indicadores calculados a partir dos contatos cadastrados neste navegador.</p></div><button class="secondary-btn" id="export-csv">⇩ Exportar CSV</button></div>
+        <div class="stats-grid report-stats">
+          <article class="stat-card"><div class="stat-top"><span>Taxa de resposta</span><span class="stat-icon teal">↩</span></div><strong id="report-response">0%</strong><small>Responderam ÷ abordados</small></article>
+          <article class="stat-card"><div class="stat-top"><span>Taxa de interesse</span><span class="stat-icon purple">✦</span></div><strong id="report-interest">0%</strong><small>Interessados ÷ abordados</small></article>
+          <article class="stat-card"><div class="stat-top"><span>Conversão em vendas</span><span class="stat-icon green">✓</span></div><strong id="report-conversion">0%</strong><small>Vendas ÷ abordados</small></article>
+          <article class="stat-card"><div class="stat-top"><span>Valor registrado</span><span class="stat-icon blue">R$</span></div><strong id="report-revenue">R$ 0</strong><small>Soma das vendas informadas</small></article>
+        </div>
+        <div class="dashboard-grid">
+          <article class="panel"><div class="panel-heading"><div><h2>Contatos por etapa</h2><p class="muted">Quantidade de clientes em cada status</p></div></div><div id="report-stages" class="funnel-bars"></div></article>
+          <article class="panel"><div class="panel-heading"><div><h2>Resumo de qualidade dos dados</h2><p class="muted">Informações para revisar</p></div></div><div id="data-quality" class="quality-list"></div></article>
+        </div>
+        <p class="footnote">A taxa de resposta/interesse usa a quantidade de registros com empresa cadastrada como base nesta demonstração. Em produção, os cálculos deverão usar campanhas e períodos definidos, evitando comparar grupos incompletos.</p>
+      </section>
+
+      <section class="view" id="view-settings">
+        <div class="page-heading"><div><p class="eyebrow">SISTEMA</p><h1>Configurações</h1><p class="muted">Estado atual do protótipo e próximos passos técnicos.</p></div></div>
+        <article class="panel settings-panel">
+          <h2>Conexões</h2>
+          <div class="setting-row"><div><strong>WhatsApp Business Platform</strong><p class="muted">Ainda não conectado. Nenhuma mensagem é enviada.</p></div><span class="status-tag neutral">Desconectado</span></div>
+          <div class="setting-row"><div><strong>Banco de dados remoto</strong><p class="muted">Os dados de teste ficam no armazenamento local deste navegador.</p></div><span class="status-tag neutral">Local</span></div>
+          <div class="setting-row"><div><strong>Inteligência artificial</strong><p class="muted">Não configurada. O protótipo não gera respostas com IA.</p></div><span class="status-tag neutral">Desativada</span></div>
+          <h2 class="settings-subtitle">Privacidade e dados</h2>
+          <p class="muted">Não cadastre dados pessoais reais nesta versão de demonstração. Antes de produção, serão necessários autenticação, banco seguro, controle de acesso, política de retenção e configuração da integração oficial.</p>
+          <button class="danger-btn" id="reset-demo">Restaurar dados fictícios</button>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="client-dialog">
+    <form id="client-form" method="dialog">
+      <div class="dialog-heading"><div><p class="eyebrow">NOVO REGISTRO</p><h2>Cadastrar cliente</h2></div><button type="button" class="close-btn" id="close-dialog" aria-label="Fechar">×</button></div>
+      <label>Nome da empresa<input name="company" required maxlength="100" placeholder="Ex.: Oficina Exemplo"></label>
+      <div class="form-row"><label>Telefone<input name="phone" placeholder="(41) 99999-9999" maxlength="30"></label><label>Segmento<input name="segment" placeholder="Ex.: Automotivo"></label></div>
+      <label>Serviço de interesse<select name="service" id="service-select"></select></label>
+      <div class="form-row"><label>Etapa<select name="stage" id="form-stage"></select></label><label>Origem<input name="source" placeholder="Ex.: Google Maps"></label></div>
+      <label>Observações<textarea name="notes" rows="3" placeholder="Contexto da conversa, dúvidas ou próxima ação..."></textarea></label>
+      <div class="dialog-actions"><button type="button" class="secondary-btn" id="cancel-dialog">Cancelar</button><button type="submit" class="primary-btn">Salvar cliente</button></div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
