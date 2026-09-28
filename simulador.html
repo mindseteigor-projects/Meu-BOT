@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IG Sites — Simulador do Bot</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f7fb;color:#14213d}
+.wrap{max-width:1180px;margin:0 auto;padding:24px}.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.brand{font-weight:800;font-size:22px}.badge{background:#eef3ff;color:#3159d9;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:700}
+.grid{display:grid;grid-template-columns:1.4fr .8fr;gap:18px}.card{background:#fff;border:1px solid #e3e8f1;border-radius:16px;box-shadow:0 6px 20px #00000008}
+.chat{min-height:650px;display:flex;flex-direction:column}.chat-head{padding:18px;border-bottom:1px solid #e8edf4}.chat-head strong{display:block}.chat-head small{color:#6d7890}
+.messages{padding:18px;flex:1;overflow:auto;background:#f8fafc}.msg{max-width:78%;padding:11px 13px;border-radius:14px;margin:9px 0;line-height:1.45;white-space:pre-wrap}.client{background:#fff;border:1px solid #e1e6ee}.bot{background:#e9efff;margin-left:auto}.human{background:#e8f7ef;margin-left:auto}.system{max-width:100%;background:#fff7df;border:1px solid #f0dfaa;color:#715a19;font-size:12px}
+.compose{display:flex;gap:10px;padding:14px;border-top:1px solid #e8edf4}.compose input{flex:1;padding:12px;border:1px solid #ccd5e3;border-radius:10px}.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:700;cursor:pointer}.primary{background:#3159d9;color:#fff}.secondary{background:#edf1f7;color:#24324a}.danger{background:#fff0f0;color:#b52d2d}.side{padding:18px}.row{padding:13px 0;border-bottom:1px solid #edf0f5}.row:last-child{border-bottom:0}.label{font-size:11px;text-transform:uppercase;color:#7a8498;font-weight:700}.value{font-weight:700;margin-top:5px}.ok{color:#16804b}.warn{color:#a66a00}.red{color:#b52d2d}
+.actions{display:grid;gap:9px;margin-top:14px}.actions button{width:100%}.rule{font-size:13px;line-height:1.5;color:#5d687d;margin-top:15px;background:#f7f9fc;padding:12px;border-radius:10px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.chat{min-height:600px}.msg{max-width:90%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div><div class="brand">IG Sites — Simulador do Bot</div><small>Ambiente 100% fictício • WhatsApp desconectado</small></div>
+    <div class="badge">TESTE LOCAL</div>
+  </div>
+
+  <div class="grid">
+    <section class="card chat">
+      <div class="chat-head"><strong>Conversa de teste</strong><small>Cliente fictício: Oficina Exemplo</small></div>
+      <div id="messages" class="messages"></div>
+      <div class="compose">
+        <input id="input" placeholder="Digite uma mensagem do cliente..." autocomplete="off">
+        <button class="btn primary" id="send">Enviar</button>
+      </div>
+    </section>
+
+    <aside class="card side">
+      <h3>Estado do bot</h3>
+      <div class="row"><div class="label">Modo</div><div id="mode" class="value">Aguardando mensagem</div></div>
+      <div class="row"><div class="label">Última atividade</div><div id="last" class="value">—</div></div>
+      <div class="row"><div class="label">Temporizador</div><div id="timer" class="value">—</div></div>
+      <div class="row"><div class="label">Atendimento humano</div><div id="human" class="value ok">Não assumido</div></div>
+
+      <div class="actions">
+        <button class="btn secondary" id="fast">Simular passagem de 7 min</button>
+        <button class="btn secondary" id="wait">Simular espera de 10–29 min</button>
+        <button class="btn secondary" id="humanBtn">Eu assumi o atendimento</button>
+        <button class="btn danger" id="reset">Reiniciar conversa</button>
+      </div>
+
+      <div class="rule">
+        <strong>Regras desta simulação</strong><br>
+        • Conversa ativa: o bot responde normalmente.<br>
+        • Sem resposta por 7 minutos: entra em estado de conversa parada.<br>
+        • Ao retomar após a pausa: a resposta fica sujeita ao intervalo aleatório de 10–29 minutos.<br>
+        • Pedido de modelo: o bot pausa e você assume.<br>
+        • Preço, desconto e fechamento: ficam com você.<br><br>
+        <strong>Importante:</strong> os botões de tempo são aceleradores de teste. Nenhum WhatsApp é acessado.
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+const messages=document.getElementById('messages');
+const input=document.getElementById('input');
+const mode=document.getElementById('mode');
+const last=document.getElementById('last');
+const timer=document.getElementById('timer');
+const human=document.getElementById('human');
+
+let active=false, assumed=false, lastAt=null, waiting=false, waitMin=null;
+
+function add(text,type){
+  const d=document.createElement('div');
+  d.className='msg '+type;
+  d.textContent=text;
+  messages.appendChild(d);
+  messages.scrollTop=messages.scrollHeight;
+}
+function setState(){
+  if(assumed){mode.textContent='Atendimento humano'; mode.className='value red'; human.textContent='Assumido por você'; human.className='value red'; timer.textContent='Pausado'; return;}
+  human.textContent='Não assumido'; human.className='value ok';
+  if(waiting){mode.textContent='Aguardando intervalo';mode.className='value warn';timer.textContent='10–29 minutos';}
+  else if(active){mode.textContent='Conversa ativa';mode.className='value ok';timer.textContent='Até 7 minutos de inatividade';}
+  else{mode.textContent='Conversa parada';mode.className='value warn';timer.textContent='—';}
+}
+function botReply(text){
+  if(assumed){add('Mensagem recebida, mas o bot está pausado porque você assumiu o atendimento.','system');return;}
+  const t=text.toLowerCase();
+  if(t.includes('modelo')||t.includes('exemplo')||t.includes('portfólio')||t.includes('site demonstr')){
+    assumed=true; waiting=false; add('O cliente pediu um modelo. O bot pausou este contato para você assumir.','system'); setState(); return;
+  }
+  if(t.includes('preço')||t.includes('valor')||t.includes('desconto')||t.includes('quanto custa')){
+    add('Essa parte fica para você. O bot não negocia preços, descontos ou fechamento.','system'); assumed=true; setState(); return;
+  }
+  if(waiting){
+    add('Olá! Posso te explicar como funciona o site para o seu negócio.','bot');
+    waiting=false; active=true; lastAt=Date.now(); setState(); return;
+  }
+  add('Entendi! Posso te explicar como funciona o serviço da IG Sites e tirar suas dúvidas.','bot');
+  active=true; lastAt=Date.now(); setState();
+}
+function send(){
+  const text=input.value.trim(); if(!text)return;
+  add(text,'client'); input.value='';
+  last.textContent='agora';
+  if(!active && !waiting && !assumed){active=true;setState();}
+  botReply(text);
+}
+document.getElementById('send').onclick=send;
+input.addEventListener('keydown',e=>{if(e.key==='Enter')send()});
+document.getElementById('fast').onclick=()=>{
+  if(assumed)return;
+  active=false; waiting=false;
+  add('7 minutos se passaram sem nova resposta. A conversa foi considerada parada.','system');
+  setState();
+};
+document.getElementById('wait').onclick=()=>{
+  if(assumed)return;
+  waiting=true; active=false; waitMin=Math.floor(Math.random()*20)+10;
+  add('Simulação: o próximo retorno do bot aguardaria aproximadamente '+waitMin+' minutos.','system');
+  setState();
+};
+document.getElementById('humanBtn').onclick=()=>{
+  assumed=true; waiting=false; active=false;
+  add('Você assumiu o atendimento. O bot ficará pausado neste contato.','human');
+  setState();
+};
+document.getElementById('reset').onclick=()=>{
+  assumed=false;active=false;waiting=false;lastAt=null;messages.innerHTML='';
+  add('Simulação reiniciada. Envie uma mensagem como se fosse o cliente.','system');
+  last.textContent='—';setState();
+};
+add('Simulação pronta. Envie uma mensagem do cliente para começar.','system');
+setState();
+</script>
+</body>
+</html>
